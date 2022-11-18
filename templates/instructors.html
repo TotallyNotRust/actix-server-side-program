@@ -1,0 +1,34 @@
+{% extends "based.html" %}
+
+{% block body %}
+
+<body>
+    <div>
+        <h3>
+            Instructors
+        </h3>
+        {% for i in instructors %}
+        <label style="display: flex;">
+            {{i.first_name}}
+
+        </label>
+        {%endfor%}
+    </div>
+</body>
+
+{% endblock %}
+
+{%block input%}
+<form method="POST">
+    <h3>
+        New instructor
+    </h3>
+    <label for="first_name">First name</label>
+    <input type="text" id="first_name" name="first_name">
+    <label for="last_name">Last name</label>
+    <input type="text" id="last_name" name="last_name">
+    <label for="hire_date">Hire date</label>
+    <input type="date" id="hire" name="hire_date">
+    <input type="submit">
+</form>
+{%endblock%}

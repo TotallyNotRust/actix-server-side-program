@@ -1,0 +1,38 @@
+<html>
+<div class="header">
+    <h1 class="header">Header!</h1>
+</div>
+
+<div>
+    {%block input%}
+    {%endblock%}
+</div>
+
+{%block body%}
+{%endblock%}
+
+</html>
+<style>
+    html {
+        margin: 20pt;
+    }
+
+    body {
+        background-color: cadetblue;
+    }
+
+    div.header {
+        background-color: darkcyan;
+        outline: 5pt;
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        border-radius: 8px;
+        box-shadow: 3px 3px 10px #0004, -2px -2px 10px #0004;
+    }
+
+    h1.header {
+        margin: 20;
+
+    }
+</style>
