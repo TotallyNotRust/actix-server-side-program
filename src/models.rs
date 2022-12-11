@@ -23,3 +23,19 @@ pub struct NewInstructor {
     pub first_name: String,
     pub hire_date: String,
 }
+
+#[derive(Queryable, Debug, Identifiable, PartialEq)]
+#[diesel(table_name = student)]
+pub struct Student {
+    pub id: i32,
+    pub last_name: Option<String>,
+    pub first_name: String,
+    pub enrollment_date: String,
+}
+#[derive(Insertable, Deserialize)]
+#[diesel(table_name = student)]
+pub struct NewStudent {
+    pub last_name: Option<String>,
+    pub first_name: String,
+    pub enrollment_date: String,
+}

@@ -1,5 +1,4 @@
 #![allow(dead_code, unused_imports)]
-
 use actix_web::{
     get, post,
     web::{self},
@@ -47,7 +46,10 @@ async fn main() -> std::io::Result<()> {
             .route(web::post().to(sites::hi::hi)),
         web::resource("/instructor")
             .route(web::get().to(sites::instructor::instructor_home))
-            .route(web::post().to(sites::instructor::new_instructor))
+            .route(web::post().to(sites::instructor::new_instructor)),
+        web::resource("/students")
+            .route(web::get().to(sites::student::student_home))
+            .route(web::post().to(sites::student::new_student))
     );
 
     server.bind(("127.0.0.1", 8080))?.run().await?;
