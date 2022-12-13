@@ -7,12 +7,22 @@
         <h3>
             Instructors
         </h3>
-        {% for i in instructors %}
-        <label style="display: flex;">
-            {{i.first_name}}
-
-        </label>
-        {%endfor%}
+        <table>
+            <tr>
+                <th>
+                    First Name
+                </th>
+                <th>
+                    Hire Date
+                </th>
+            </tr>
+            {% for i in instructors %}
+            <tr>
+                <td>{{i.first_name}}</td>
+                <td>{{i.hire_date}}</td>
+            </tr>
+            {%endfor%}
+        </table>
     </div>
 </body>
 

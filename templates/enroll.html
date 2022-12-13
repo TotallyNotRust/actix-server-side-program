@@ -1,0 +1,71 @@
+{% extends "based.html" %}
+
+{% block body %}
+
+<body>
+    <div>
+        <h3>
+            Enrollments
+        </h3>
+        <table>
+            <tr>
+                <th>
+                    Student name
+                </th>
+                <th>
+                    Course title
+                </th>
+                <th>
+                    Grade
+                </th>
+            </tr>
+            {% for i in enrollments %}
+            <tr>
+                <td>{{i.student.first_name}}</td>
+                <td>{{i.course.title}}</td>
+                {% match i.enrollment.grade %}
+                {% when Some(grade) %}
+                <td>{{grade}}</td>
+                {% else %}
+                <td>N/A</td>
+                {% endmatch %}
+            </tr>
+            {%endfor%}
+        </table>
+    </div>
+</body>
+
+{% endblock %}
+
+{%block input%}
+<form method="POST">
+    <h3>
+        New instructor
+    </h3>
+    <label for="student_id">Pick a student</label>
+    <select name="student_id" id="student_id">
+        {% for s in students %}
+        <option value="{{s.id}}">
+            {{ s.first_name }}
+        </option>
+        {% endfor %}
+    </select>
+    <label for="course_id">Pick a course</label>
+    <select name="course_id" id="course_id">
+        {% for c in courses %}
+        <option value="{{c.id}}">
+            {{ c.title }}
+        </option>
+        {% endfor %}
+    </select>
+    <select name="grade" id="grade">
+        <option default value="None">-</option>
+        {% for g in grades %}
+        <option value="{{g}}">
+            {{ g }}
+        </option>
+        {% endfor %}
+    </select>
+    <input type="submit">
+</form>
+{%endblock%}

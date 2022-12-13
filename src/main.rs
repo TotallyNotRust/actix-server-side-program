@@ -12,14 +12,14 @@ mod sites;
 mod models;
 mod schema;
 
-#[get("/")]
-async fn hello() -> impl Responder {
-    HttpResponse::Ok().body("Hello world!")
-}
-#[get("/goodbye")]
-async fn goodbye() -> impl Responder {
-    HttpResponse::Ok().body("Goodbye world!")
-}
+// #[get("/")]
+// async fn hello() -> impl Responder {
+//     HttpResponse::Ok().body("Hello world!")
+// }
+// #[get("/goodbye")]
+// async fn goodbye() -> impl Responder {
+//     HttpResponse::Ok().body("Goodbye world!")
+// }
 
 macro_rules! createServer {
     ($($x:expr), *) => {
@@ -39,17 +39,24 @@ async fn main() -> std::io::Result<()> {
     //     vec![Box::new(goodbye), Box::new(hello)];
 
     let server = createServer!(
-        hello,
-        goodbye,
+        // hello,
+        // goodbye,
+        web::resource("/").route(web::get().to(sites::homepage::homepage)),
         web::resource("/hi")
             .route(web::get().to(sites::hi::hi))
             .route(web::post().to(sites::hi::hi)),
-        web::resource("/instructor")
+        web::resource("/instructors")
             .route(web::get().to(sites::instructor::instructor_home))
             .route(web::post().to(sites::instructor::new_instructor)),
         web::resource("/students")
             .route(web::get().to(sites::student::student_home))
-            .route(web::post().to(sites::student::new_student))
+            .route(web::post().to(sites::student::new_student)),
+        web::resource("/courses")
+            .route(web::get().to(sites::course::course_home))
+            .route(web::post().to(sites::course::new_course)),
+        web::resource("/enrollments")
+            .route(web::get().to(sites::enroll::enrollment_home))
+            .route(web::post().to(sites::enroll::new_enrollment))
     );
 
     server.bind(("127.0.0.1", 8080))?.run().await?;

@@ -7,12 +7,22 @@
         <h3>
             Students
         </h3>
-        {% for i in students %}
-        <label style="display: flex;">
-            {{i.first_name}}
-
-        </label>
-        {%endfor%}
+        <table>
+            <tr>
+                <th>
+                    First Name
+                </th>
+                <th>
+                    Enrollment Date
+                </th>
+            </tr>
+            {% for i in students %}
+            <tr>
+                <td>{{i.first_name}}</td>
+                <td>{{i.enrollment_date}}</td>
+            </tr>
+            {%endfor%}
+        </table>
     </div>
 </body>
 

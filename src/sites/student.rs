@@ -28,17 +28,21 @@ impl IntoIterator for StudentPage {
     }
 }
 
-pub async fn new_student(new_instructor: web::Form<NewStudent>) -> HttpResponse {
+struct ExpandedStudent {
+    student: Student,
+}
+
+pub async fn new_student(new_student: web::Form<NewStudent>) -> HttpResponse {
     let connection = &mut match SqliteConnection::establish("./database.db") {
         Ok(n) => n,
         Err(n) => panic!("{:?}", n),
     };
 
     match diesel::insert_into(student::table())
-        .values(&new_instructor.0)
+        .values(&new_student.0)
         .execute(connection)
     {
-        Ok(_) => println!("Inserted instructor named {}", &new_instructor.0.first_name),
+        Ok(_) => println!("Inserted student named {}", &new_student.0.first_name),
         Err(n) => println!("Could not insert instructor, got error:\n{:?}", n),
     }
 

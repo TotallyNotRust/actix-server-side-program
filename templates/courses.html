@@ -1,0 +1,42 @@
+{% extends "based.html" %}
+
+{% block body %}
+
+<body>
+    <div>
+        <h3>
+            Courses
+        </h3>
+        <table>
+            <tr>
+                <th>
+                    ID
+                </th>
+                <th>
+                    Title
+                </th>
+            </tr>
+            {% for i in courses %}
+            <tr>
+                <td>{{i.id}}</td>
+                <td>{{i.title}}</td>
+            </tr>
+            {%endfor%}
+        </table>
+    </div>
+</body>
+
+{% endblock %}
+
+{%block input%}
+<form method="POST">
+    <h3>
+        New instructor
+    </h3>
+    <label for="title">Title</label>
+    <input type="text" id="title" name="title">
+    <label for="credits">Credits</label>
+    <input type="number" id="credits" name="credits">
+    <input type="submit">
+</form>
+{%endblock%}
