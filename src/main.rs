@@ -47,17 +47,27 @@ async fn main() -> std::io::Result<()> {
             .route(web::post().to(sites::hi::hi)),
         web::resource("/instructors")
             .route(web::get().to(sites::instructor::instructor_home))
-            .route(web::post().to(sites::instructor::new_instructor)),
+            .route(web::post().to(sites::instructor::new_instructor))
+            .route(web::delete().to(sites::instructor::delete_instructor))
+            .route(web::put().to(sites::instructor::update_instructor)),
         web::resource("/students")
             .route(web::get().to(sites::student::student_home))
-            .route(web::post().to(sites::student::new_student)),
+            .route(web::post().to(sites::student::new_student))
+            .route(web::delete().to(sites::student::delete_student))
+            .route(web::put().to(sites::student::update_student)),
         web::resource("/courses")
             .route(web::get().to(sites::course::course_home))
-            .route(web::post().to(sites::course::new_course)),
+            .route(web::post().to(sites::course::new_course))
+            .route(web::delete().to(sites::course::delete_course))
+            .route(web::put().to(sites::course::update_course)),
         web::resource("/enrollments")
             .route(web::get().to(sites::enroll::enrollment_home))
             .route(web::post().to(sites::enroll::new_enrollment))
+            .route(web::delete().to(sites::enroll::delete_enrollment))
+            .route(web::put().to(sites::enroll::update_enrollment))
     );
+
+    println!("Started server on http://127.0.0.1:8080");
 
     server.bind(("127.0.0.1", 8080))?.run().await?;
 

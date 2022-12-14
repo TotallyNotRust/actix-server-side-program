@@ -1,24 +1,30 @@
 extern crate askama;
 
+use std::future::{ready, IntoFuture, Ready};
 use std::vec;
 
 use actix_web::cookie::Display;
+use futures_util::Future;
 use lazy_static::lazy_static;
 
 use diesel::associations::HasTable;
 use diesel::prelude::*;
 
 use actix_form_data::{Error, Field, Form, Value};
-use actix_web::{web, HttpResponse, Responder};
+use actix_web::{
+    web::{self, Json},
+    HttpRequest, HttpResponse, Responder,
+};
 use serde::{Deserialize, Serialize};
 
 use askama::Template;
 
 use crate::models::{Course, Enrollment, Instructor, NewEnrollment, NewInstructor, Student};
 
+use crate::schema::enrollment::grade;
 use crate::schema::{
     course::dsl::{course, course_id as cid},
-    enrollment::dsl::{course_id, enrollment, student_id},
+    enrollment::dsl::{course_id, enrollment, enrollment_id, student_id},
     student::dsl::{student, student_id as sid},
 };
 
@@ -49,13 +55,46 @@ struct EnrollWithStudentCourse {
     course: Course,
 }
 
-impl IntoIterator for EnrollmentPage {
-    type Item = EnrollWithStudentCourse;
-    type IntoIter = std::vec::IntoIter<EnrollWithStudentCourse>;
+#[derive(Debug, Deserialize)]
+pub struct DeleteEnrollmentRequest {
+    id: i32,
+}
 
-    fn into_iter(self) -> Self::IntoIter {
-        return self.enrollments.into_iter();
+pub async fn delete_enrollment(enroll: Json<DeleteEnrollmentRequest>) -> HttpResponse {
+    let connection: &mut SqliteConnection = &mut match SqliteConnection::establish("./database.db")
+    {
+        Ok(n) => n,
+        Err(n) => panic!("{:?}", n),
+    };
+
+    match diesel::delete(enrollment::table())
+        .filter(enrollment_id.eq(enroll.id))
+        .execute(connection)
+    {
+        Ok(_) => {}
+        Err(n) => panic!("{:?}", n),
     }
+
+    HttpResponse::Ok().finish()
+}
+
+pub async fn update_enrollment(updated_enroll: web::Json<Enrollment>) -> HttpResponse {
+    let connection = &mut match SqliteConnection::establish("./database.db") {
+        Ok(n) => n,
+        Err(n) => panic!("{:?}", n),
+    };
+
+    diesel::update(enrollment::table())
+        .filter(enrollment_id.eq(updated_enroll.id))
+        .set((
+            course_id.eq(updated_enroll.course_id),
+            student_id.eq(updated_enroll.student_id),
+            grade.eq(updated_enroll.grade.to_owned()),
+        ))
+        .execute(connection)
+        .unwrap();
+
+    enrollment_home().await
 }
 
 pub async fn new_enrollment(new_enroll: web::Form<NewEnrollment>) -> HttpResponse {
@@ -65,6 +104,25 @@ pub async fn new_enrollment(new_enroll: web::Form<NewEnrollment>) -> HttpRespons
     };
 
     let empty_input = "None".to_owned();
+
+    // Ensure student is only enrolled in course once, if it is enrolled multiple times it should update instead.
+    let enrollments = enrollment
+        .filter(course_id.eq(new_enroll.course_id))
+        .filter(student_id.eq(new_enroll.student_id))
+        .load::<Enrollment>(connection)
+        .unwrap();
+    match enrollments.len() {
+        0 => {}
+        _ => {
+            return update_enrollment(web::Json(Enrollment {
+                id: enrollments.first().unwrap().id,
+                course_id: new_enroll.course_id,
+                student_id: new_enroll.student_id,
+                grade: new_enroll.grade.to_owned(),
+            }))
+            .await
+        }
+    }
 
     match diesel::insert_into(enrollment::table())
         .values(NewEnrollment {
@@ -78,17 +136,18 @@ pub async fn new_enrollment(new_enroll: web::Form<NewEnrollment>) -> HttpRespons
         })
         .execute(connection)
     {
-        Ok(_) => println!(
-            "Created a new enrollment for student with id {} in course with id {}",
-            &new_enroll.0.student_id, &new_enroll.0.course_id
-        ),
-        Err(n) => println!("Could not insert instructor, got error:\n{:?}", n),
+        Ok(_) => {}
+        Err(n) => panic!("Could not insert instructor, got error:\n{:?}", n),
     }
 
     enrollment_home().await
 }
 
 pub async fn enrollment_home() -> HttpResponse {
+    HttpResponse::Ok().body(generate_body())
+}
+
+fn generate_body() -> String {
     let connection = &mut match SqliteConnection::establish("./database.db") {
         Ok(n) => n,
         Err(n) => panic!("{:?}", n),
@@ -106,8 +165,6 @@ pub async fn enrollment_home() -> HttpResponse {
         .left_join(student)
         .load::<(Enrollment, Option<Course>, Option<Student>)>(connection)
         .expect("Could not load instructors");
-
-    println!("{:#?}", raw_enrollments);
 
     let mut enrollments: Vec<EnrollWithStudentCourse> = vec![];
 
@@ -128,14 +185,11 @@ pub async fn enrollment_home() -> HttpResponse {
         }
     }
 
-    println!("{:?}", enrollments);
-
     let page = EnrollmentPage {
         enrollments: enrollments,
         students: students,
         courses: courses,
         grades: GRADES.to_owned(),
     };
-
-    HttpResponse::Ok().body(page.render().unwrap())
+    page.render().unwrap()
 }

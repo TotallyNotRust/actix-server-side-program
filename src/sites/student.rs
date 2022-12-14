@@ -1,5 +1,6 @@
 extern crate askama;
 
+use actix_web::web::Json;
 use diesel::associations::HasTable;
 use diesel::prelude::*;
 
@@ -11,7 +12,8 @@ use askama::Template;
 
 use crate::models::{NewStudent, Student};
 
-use crate::schema::student::dsl::{first_name, student};
+use crate::schema::student::dsl::{first_name, last_name, student, student_id};
+use crate::schema::student::enrollment_date;
 
 #[derive(Template)]
 #[template(path = "students.html")]
@@ -28,8 +30,48 @@ impl IntoIterator for StudentPage {
     }
 }
 
-struct ExpandedStudent {
-    student: Student,
+pub async fn update_student(updated_student: web::Json<Student>) -> HttpResponse {
+    let connection = &mut match SqliteConnection::establish("./database.db") {
+        Ok(n) => n,
+        Err(n) => panic!("{:?}", n),
+    };
+
+    diesel::update(student::table())
+        .filter(student_id.eq(updated_student.id))
+        .set((
+            first_name.eq(updated_student.first_name.to_owned()),
+            last_name.eq(updated_student.last_name.to_owned()),
+            enrollment_date.eq(updated_student.enrollment_date.to_owned()),
+        ))
+        .execute(connection)
+        .unwrap();
+
+    HttpResponse::Ok().finish()
+
+    //instructor_home().await
+}
+
+#[derive(Debug, Deserialize)]
+pub struct DeleteStudentRequest {
+    id: i32,
+}
+
+pub async fn delete_student(_course: Json<DeleteStudentRequest>) -> HttpResponse {
+    let connection: &mut SqliteConnection = &mut match SqliteConnection::establish("./database.db")
+    {
+        Ok(n) => n,
+        Err(n) => panic!("{:?}", n),
+    };
+
+    match diesel::delete(student::table())
+        .filter(student_id.eq(_course.id))
+        .execute(connection)
+    {
+        Ok(n) => {}
+        Err(n) => panic!("{:?}", n),
+    }
+
+    HttpResponse::Ok().finish()
 }
 
 pub async fn new_student(new_student: web::Form<NewStudent>) -> HttpResponse {
@@ -42,8 +84,8 @@ pub async fn new_student(new_student: web::Form<NewStudent>) -> HttpResponse {
         .values(&new_student.0)
         .execute(connection)
     {
-        Ok(_) => println!("Inserted student named {}", &new_student.0.first_name),
-        Err(n) => println!("Could not insert instructor, got error:\n{:?}", n),
+        Ok(_) => {}
+        Err(n) => panic!("{:?}", n),
     }
 
     student_home().await
@@ -58,8 +100,6 @@ pub async fn student_home() -> HttpResponse {
     let students = student
         .load::<Student>(connection)
         .expect("Could not load instructors");
-
-    println!("{:?}", students);
 
     let page = StudentPage { students: students };
 

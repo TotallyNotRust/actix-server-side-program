@@ -10,6 +10,9 @@
         <table>
             <tr>
                 <th>
+
+                </th>
+                <th>
                     First Name
                 </th>
                 <th>
@@ -18,6 +21,14 @@
             </tr>
             {% for i in students %}
             <tr>
+                <td>
+                    <button style="color:red;" onclick="delete_post('{{i.id}}')">
+                        Delete
+                    </button>
+                    <button onclick="set_edit('{{i.id}}', '{{i.first_name}}')">
+                        Edit
+                    </button>
+                </td>
                 <td>{{i.first_name}}</td>
                 <td>{{i.enrollment_date}}</td>
             </tr>
@@ -33,6 +44,21 @@
     <h3>
         New student
     </h3>
+    <label for="first_name">First name</label>
+    <input type="text" id="first_name" name="first_name">
+    <label for="last_name">Last name</label>
+    <input type="text" id="last_name" name="last_name">
+    <label for="enrollment_date">Enrollment date</label>
+    <input type="date" id="enrollment_date" name="enrollment_date">
+    <input type="submit">
+</form>
+{%endblock%}
+{%block edit%}
+<form method="PUT" onsubmit="return edit()" id="editor">
+    <h3 id="edit_header">
+        Edit instructor
+    </h3>
+    <input value="" id="edit_id" name="id" style="display:none;" type="number">
     <label for="first_name">First name</label>
     <input type="text" id="first_name" name="first_name">
     <label for="last_name">Last name</label>

@@ -31,6 +31,11 @@
     {%endblock%}
 </div>
 
+<div style="display: none;" id="edit_container">
+    {%block edit%}
+    {%endblock%}
+</div>
+
 {%block body%}
 {%endblock%}
 
@@ -71,3 +76,53 @@
         margin: 10pt;
     }
 </style>
+
+<script>
+    function delete_post(id) {
+        let body = { "id": parseInt(id) }
+        fetch(location.href, { 'method': 'DELETE', 'headers': { 'Content-Type': 'application/json' }, 'body': JSON.stringify(body) }).then((response) => {
+            location.replace(location.href) // Reload with resubmitting.
+        });
+    }
+    function show_edit(id) {
+        let element = document.getElementById("field_" + id)
+
+        let current_display = element.style.display
+
+        if (current_display == "hidden") {
+            element.style.display = null
+        } else {
+            element.style.display = "hidden"
+        }
+    }
+    function edit() {
+        let children = document.getElementById("editor").querySelectorAll('input, select')
+
+        let map = new Map()
+
+        children.forEach((x) => {
+            if (x.id != "submit") {
+                if (x.type == "number") {
+                    map.set(x.name, parseInt(x.value))
+                } else {
+                    map.set(x.name, x.value)
+                }
+            }
+        })
+
+        let body = Object.fromEntries(map)
+
+        console.log(JSON.stringify(body))
+
+        fetch(location.href, { 'method': 'PUT', 'headers': { 'Content-Type': 'application/json' }, 'body': JSON.stringify(body) }).then((response) => {
+            location.replace(location.href)
+        });
+        return false
+    }
+
+    function set_edit(id, name) {
+        document.getElementById('edit_header').innerText = 'Edit ' + name
+        document.getElementById('edit_id').value = id
+        document.getElementById('edit_container').style = ""
+    }
+</script>

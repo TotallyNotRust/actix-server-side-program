@@ -10,6 +10,9 @@
         <table>
             <tr>
                 <th>
+
+                </th>
+                <th>
                     Student name
                 </th>
                 <th>
@@ -21,11 +24,16 @@
             </tr>
             {% for i in enrollments %}
             <tr>
+                <td>
+                    <button style="color:red;" onclick="delete_post('{{i.enrollment.id}}')">
+                        Delete
+                    </button>
+                </td>
                 <td>{{i.student.first_name}}</td>
                 <td>{{i.course.title}}</td>
                 {% match i.enrollment.grade %}
-                {% when Some(grade) %}
-                <td>{{grade}}</td>
+                {% when Some(_grade) %}
+                <td>{{_grade}}</td>
                 {% else %}
                 <td>N/A</td>
                 {% endmatch %}
@@ -40,8 +48,9 @@
 {%block input%}
 <form method="POST">
     <h3>
-        New instructor
+        New enrollment
     </h3>
+    <a>To edit select the student and course and give a grade</a> <br>
     <label for="student_id">Pick a student</label>
     <select name="student_id" id="student_id">
         {% for s in students %}
@@ -58,6 +67,7 @@
         </option>
         {% endfor %}
     </select>
+    <label for="grade">Pick a grade</label>
     <select name="grade" id="grade">
         <option default value="None">-</option>
         {% for g in grades %}

@@ -8,7 +8,7 @@ use serde::Deserialize;
 
 use crate::schema::*;
 
-#[derive(Queryable, Debug, Identifiable, PartialEq, Clone)]
+#[derive(Queryable, Debug, Identifiable, PartialEq, Clone, Deserialize)]
 #[diesel(table_name = instructor)]
 pub struct Instructor {
     pub id: i32,
@@ -24,7 +24,7 @@ pub struct NewInstructor {
     pub hire_date: String,
 }
 
-#[derive(Queryable, Debug, Identifiable, PartialEq, Clone)]
+#[derive(Queryable, Debug, Identifiable, PartialEq, Clone, Deserialize)]
 #[diesel(table_name = student)]
 pub struct Student {
     pub id: i32,
@@ -40,7 +40,7 @@ pub struct NewStudent {
     pub enrollment_date: String,
 }
 
-#[derive(Queryable, Debug, Identifiable, PartialEq, Clone)]
+#[derive(Queryable, Debug, Identifiable, PartialEq, Clone, Deserialize)]
 #[diesel(table_name = course)]
 pub struct Course {
     pub id: i32,
@@ -55,7 +55,7 @@ pub struct NewCourse {
     pub credits: i32,
     pub department_id: Option<i32>,
 }
-#[derive(Queryable, Debug, Identifiable, PartialEq, Clone)]
+#[derive(Queryable, Debug, Identifiable, PartialEq, Clone, Deserialize)]
 #[diesel(table_name = enrollment)]
 pub struct Enrollment {
     pub id: i32,
