@@ -1,6 +1,0 @@
-FROM rust
-
-COPY ./target/debug/actix-server-side-program /bin/docker-program
-COPY ./database.db /bin/docker-program
-
-CMD ["/bin/docker-program"]
