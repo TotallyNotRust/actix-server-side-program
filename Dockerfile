@@ -1,7 +1,9 @@
-FROM rust
+FROM rust:latest
 
-COPY . /bin/
+COPY . .
 
 EXPOSE 8080
 
-CMD ["/bin/target/debug/actix-server-side-program"]
+RUN cargo build
+
+CMD ["./target/debug/actix-server-side-program"]

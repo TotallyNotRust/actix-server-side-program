@@ -67,9 +67,9 @@ async fn main() -> std::io::Result<()> {
             .route(web::put().to(sites::enroll::update_enrollment))
     );
 
-    println!("Started server on http://127.0.0.1:8080");
+    println!("Started server on http://0.0.0.0:8080");
 
-    server.bind(("127.0.0.1", 8080))?.run().await?;
+    server.bind(("0.0.0.0", 8080))?.run().await?;
 
     return Ok(());
 }
